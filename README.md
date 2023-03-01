@@ -59,7 +59,7 @@ When entering credentials for Projects, make sure to set the Project flag to Tru
 
 Examples:
 
-![Alt text of the image](https://github.com/PaloAltoNetworks/pc-compute-migration/edit/main/images/saas_setup.png)
+![Alt text of the image](https://github.com/PaloAltoNetworks/pc-compute-migration/blob/main/images/onprem_setup.png)
 
 ![Alt text of the image](https://github.com/PaloAltoNetworks/pc-compute-migration/edit/main/images/onprem_setup.png)
 
