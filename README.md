@@ -59,11 +59,11 @@ When entering credentials for Projects, make sure to set the Project flag to Tru
 
 Examples:
 
-![Alt text of the image](https://github.com/PaloAltoNetworks/pc-cwp-migration/edit/main/images/saas_setup.png)
+![Alt text of the image](https://github.com/PaloAltoNetworks/pc-compute-migration/blob/main/images/saas_setup.png)
 
-![Alt text of the image](https://github.com/PaloAltoNetworks/pc-cwp-migration/edit/main/images/onprem_setup.png)
+![Alt text of the image](https://github.com/PaloAltoNetworks/pc-compute-migration/blob/main/images/onprem_setup.png)
 
-![Alt text of the image](https://github.com/PaloAltoNetworks/pc-cwp-migration/edit/main/images/project_setup.png)
+![Alt text of the image](https://github.com/PaloAltoNetworks/pc-compute-migration/blob/main/images/project_setup.png)
 
 Once credentials have been set up, you will then be prompted with questions to configure run options for the migration.
 
