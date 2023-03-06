@@ -47,7 +47,7 @@ Gather keys, passwords, and URLs of all consoles and projects that will be invol
 
 Using a Linux or Unix based machine, invoke Python version 3.8 and up from a command line to run the script.
 
-```python3 main.py```
+```python3 migrate.py```
 
 When running for the first time, you will be asked to enter credentials first.
 
