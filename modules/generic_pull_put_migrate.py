@@ -57,12 +57,16 @@ def g_migrate(dst_session, src_session_list, module, endpoint, name_index, data_
             dst_names = []
             if dst_entities:
                 dst_names = [x.get(NAME_INDEX,'') for x in dst_entities]
+            else:
+                dst_entities = []
 
         else:
             if dst_res.json():
                 dst_entities = dst_res.json()
                 if dst_entities:
                     dst_names = [x.get(NAME_INDEX,'') for x in dst_entities]
+                else:
+                    dst_entities = []
 
 
         res = src_session.request('GET', PULL_ENDPOINT)
@@ -148,9 +152,13 @@ def g_migrate(dst_session, src_session_list, module, endpoint, name_index, data_
         if DATA_INDEX:
             if DATA_INDEX2:
                 payload = dst_res.json()
+                if not payload:
+                    payload = {}
                 payload[DATA_INDEX][DATA_INDEX2] = dst_entities
             else:
                 payload = dst_res.json()
+                if not payload:
+                    payload = {}
                 payload[DATA_INDEX] = dst_entities
         else:
             payload = dst_entities

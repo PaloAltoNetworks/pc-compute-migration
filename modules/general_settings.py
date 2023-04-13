@@ -35,7 +35,10 @@ def migrate(dst_session, src_session_list, options, logger):
         res = dst_session.request('GET', PULL_ENDPOINT)
         dst_entities = res.json().get('customSpecs', [])
         dst_skip_default = res.json()['skipDefault']
-        dst_entities_names = [x[NAME_INDEX] for x in res.json()['customSpecs']]
+
+        dst_entities_names = []
+        if "customSpecs" in res.json():
+            dst_entities_names = [x[NAME_INDEX] for x in res.json()['customSpecs']]
 
         res = src_session.request('GET', PULL_ENDPOINT)
         src_entities = res.json().get('customSpecs', [])

@@ -134,8 +134,11 @@ def migrate(dst_session, src_session_list, options, logger):
                 entities_to_migrate[index]['webhook']['credentialId'] = src_session.tenant + ' - ' + curr
 
             #Translate  Policy Rules
-            for index2, plc in enumerate(entities_to_migrate[index]['policy']):
-                pass
+            for plc_name in entities_to_migrate[index]['policy'].keys():
+                if entities_to_migrate[index]['policy'][plc_name]['rules']:
+                    for index3, rule_name in enumerate(entities_to_migrate[index]['policy'][plc_name]['rules']):
+                        new_name = src_session.tenant + ' - ' + rule_name
+                        entities_to_migrate[index]['policy'][plc_name]['rules'][index3] = new_name
 
 
             

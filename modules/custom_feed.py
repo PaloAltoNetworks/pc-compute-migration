@@ -46,6 +46,8 @@ def migrate(dst_session, src_session_list, options, logger):
         dst_entities.extend(entities_to_migrate)
 
         payload = dst_res.json()
+        if not payload:
+            payload = {}
         payload['feed'] = dst_entities
 
         #Add entity

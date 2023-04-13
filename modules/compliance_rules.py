@@ -33,6 +33,8 @@ def migrate(dst_session, src_session_list, options, logger):
         dst_names = []
         if dst_entities:
             dst_names = [x[NAME_INDEX] for x in dst_entities]
+        else:
+            dst_entities = []
 
 
         res = src_session.request('GET', PULL_ENDPOINT)
