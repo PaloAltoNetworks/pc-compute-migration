@@ -6,7 +6,7 @@ import os
     
 def migrate(dst_session, src_session_list, options, logger):
     #NETWORKS MIGRATE FIRST - creation translation table
-    MODULE = 'CNSS - Network Entities'
+    MODULE = 'CNNS - Network Entities'
     PULL_ENDPOINT = '/api/v1/policies/firewall/network'
     PUSH_ENDPOINT = '/api/v1/policies/firewall/network'
     DATA_INDEX = 'networkEntities'
@@ -100,7 +100,7 @@ def migrate(dst_session, src_session_list, options, logger):
 #========================================================================================================================================================================================================
 
     # #Const
-    MODULE = 'CNSS - Container Rule'
+    MODULE = 'CNNS - Container Rule'
     PULL_ENDPOINT = '/api/v1/policies/firewall/network'
     PUSH_ENDPOINT = '/api/v1/policies/firewall/network'
     DATA_INDEX = 'containerRules'
@@ -194,7 +194,7 @@ def migrate(dst_session, src_session_list, options, logger):
 #========================================================================================================================================================================================================
 
 # #Const
-    MODULE = 'CNSS - Host Rule'
+    MODULE = 'CNNS - Host Rule'
     PULL_ENDPOINT = '/api/v1/policies/firewall/network'
     PUSH_ENDPOINT = '/api/v1/policies/firewall/network'
     DATA_INDEX = 'hostRules'

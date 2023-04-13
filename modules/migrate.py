@@ -9,7 +9,7 @@ from modules import runtime_rules
 from modules import tags
 from modules import vulnerability_rules
 from modules import access_rules
-from modules import cnss_rules
+from modules import cnns_rules
 from modules import custom_rules
 from modules import waas_firewall_rules
 from modules import proxy_settings
@@ -38,9 +38,9 @@ def migrate(dst_session: object, src_session_list: list, enabled_modules: dict, 
                 options = enabled_modules[module]
                 access_rules.migrate(dst_session, src_session_list, options, logger)
 
-            elif module == 'CNSS Rules':
+            elif module == 'CNNS Rules':
                 options = enabled_modules[module]
-                cnss_rules.migrate(dst_session, src_session_list, options, logger)
+                cnns_rules.migrate(dst_session, src_session_list, options, logger)
 
             elif module == 'Compliance Rules':
                 options = enabled_modules[module]
@@ -66,9 +66,9 @@ def migrate(dst_session: object, src_session_list: list, enabled_modules: dict, 
                 options = enabled_modules[module]
                 alert_profiles.migrate(dst_session, src_session_list, options, logger)
 
-            elif module == 'Cloud Discovery':
-                options = enabled_modules[module]
-                cloud_accounts.migrate(dst_session, src_session_list, options, logger)
+            # elif module == 'Cloud Discovery':
+            #     options = enabled_modules[module]
+            #     cloud_accounts.migrate(dst_session, src_session_list, options, logger)
 
             elif module == 'Credentials':
                 options = enabled_modules[module]

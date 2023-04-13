@@ -95,7 +95,7 @@ starting_modules = {
     'Tags': {},
     'General Settings': {},
     'Custom Feed': {},
-    'CNSS Rules': {},
+    'CNNS Rules': {},
     'Compliance Rules': {},
     'Custom Rules': {},
     'Access Rules': {},

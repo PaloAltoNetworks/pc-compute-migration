@@ -14,7 +14,7 @@ CWP console configurations that can be migrated by this script:
 - 'Tags'
 - 'General Settings'
 - 'Custom Feed Settings’
-- 'CNSS Rules'
+- 'CNNS Rules'
 - 'Compliance Rules'
 - 'Custom Rules'
 - 'Access Rules'
@@ -86,7 +86,7 @@ Do you want to enable the 'General Settings' module? Y/N
 n
 Do you want to enable the 'Custom Feed' module? Y/N
 n
-Do you want to enable the 'CNSS Rules' module? Y/N
+Do you want to enable the 'CNNS Rules' module? Y/N
 n
 Do you want to enable the 'Compliance Rules' module? Y/N
 n
