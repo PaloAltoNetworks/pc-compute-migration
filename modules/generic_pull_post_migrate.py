@@ -94,7 +94,7 @@ def g_migrate(dst_session, src_session_list, module, endpoint, name_index, data_
 
             #Add entity
             logger.info(f'Adding {MODULE} from \'{src_session.tenant}\'')
-            dst_session.request(verb_overwrite, PUSH_ENDPOINT, json=entities_to_migrate[index])
+            dst_session.request(verb_overwrite, PUSH_ENDPOINT, json=entities_to_migrate[index], status_ignore=[409])
 
     end_time = time.time()
     time_completed = round(end_time - start_time,3)

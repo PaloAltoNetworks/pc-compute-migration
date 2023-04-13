@@ -1,6 +1,7 @@
 import time
 from tqdm import tqdm
-def g_migrate(dst_session, src_session_list, module, endpoint, name_index, data_index, logger, col_dep=True, tag_dep=False, skip='', skip_value='', data_index2='', network_list_dep=False):
+import json
+def g_migrate(dst_session, src_session_list, module, endpoint, name_index, data_index, logger, col_dep=True, tag_dep=False, skip='', skip_value='', data_index2='', network_list_dep=False, translate_custom_rule_ids=False):
     #Const
     MODULE = module
     NAME_INDEX = name_index
@@ -15,8 +16,29 @@ def g_migrate(dst_session, src_session_list, module, endpoint, name_index, data_
     #Logic
     start_time = time.time()
     logger.info(f'Starting {MODULE}s migration')
+    
+    dst_res = {}
+    dst_rules_list ={}
+    if translate_custom_rule_ids:
+        dst_res = dst_session.request('GET','/api/v1/custom-rules')
+        dst_rules_list = dst_res.json()
 
     for src_session in tqdm(src_session_list, desc='Processing Consoles/Projects', leave=False, initial=1):
+        custom_rules_id_translation_matrix = {}
+
+        if translate_custom_rule_ids:
+            src_res = src_session.request('GET','/api/v1/custom-rules')
+            src_rules_list = src_res.json()
+
+            for dst_rule in dst_rules_list:
+                for src_rule in src_rules_list:
+                     #Gotta translate the name with the modifications made to where it was sourced from but the built ins will have the same name
+                    if dst_rule['name'] == src_session.tenant + ' - ' + src_rule['name'] or dst_rule['name'] == src_rule['name']:
+                        custom_rules_id_translation_matrix.update({src_rule['_id']:dst_rule['_id']})
+                        continue
+        
+
+
         #Compare entities------------------------------------------------------
         logger.debug(f'Comparing {MODULE}s from \'{src_session.tenant}\'')
 
@@ -75,6 +97,8 @@ def g_migrate(dst_session, src_session_list, module, endpoint, name_index, data_
         else:
             logger.debug(f'No {MODULE}s to migrate')
             continue
+        
+        failed_indexes = []
 
         for index, ent_payload in enumerate(entities_to_migrate):
             #Create custom name for entity
@@ -102,8 +126,22 @@ def g_migrate(dst_session, src_session_list, module, endpoint, name_index, data_
                     for index3, col in enumerate(entities_to_migrate[index].get('applicationsSpec', [])[index2].get('networkControls', {}).get('subnets', {}).get('deny',[])):
                         val = entities_to_migrate[index].get('applicationsSpec', [])[index2]['networkControls']['subnets']['deny'][index3]
                         entities_to_migrate[index].get('applicationsSpec', [])[index2]['networkControls']['subnets']['deny'][index3] = src_session.tenant + ' - ' + val
-                        
-                        
+
+            if custom_rules_id_translation_matrix:
+                if 'customRules' in entities_to_migrate[index]:
+                    for b in range(len(entities_to_migrate[index]['customRules'])):
+                        try:
+                            new_id = custom_rules_id_translation_matrix[entities_to_migrate[index]['customRules'][b]['_id']]
+                            entities_to_migrate[index]['customRules'][b]['_id'] = new_id
+                        except:
+                            failed_indexes.append(index)
+        
+        #Remove rules that fail
+        if custom_rules_id_translation_matrix:
+            for index in failed_indexes:
+                del entities_to_migrate[index]
+
+
         dst_entities.extend(entities_to_migrate)
 
         payload = {}
