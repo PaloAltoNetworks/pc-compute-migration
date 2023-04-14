@@ -133,7 +133,10 @@ def migrate(dst_session, src_session_list, options, logger):
                 curr = entities_to_migrate[index]['webhook']['credentialId']
                 entities_to_migrate[index]['webhook']['credentialId'] = src_session.tenant + ' - ' + curr
 
-            #Translate  Policy Rules
+            #Translate  Policy Rules and remove unsupported policy type
+            if "outOfBandAppFirewall" in entities_to_migrate[index]['policy']:
+                entities_to_migrate[index]['policy'].pop("outOfBandAppFirewall")
+
             for plc_name in entities_to_migrate[index]['policy'].keys():
                 if entities_to_migrate[index]['policy'][plc_name]['rules']:
                     for index3, rule_name in enumerate(entities_to_migrate[index]['policy'][plc_name]['rules']):

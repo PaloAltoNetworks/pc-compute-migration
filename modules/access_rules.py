@@ -8,6 +8,7 @@ def migrate(dst_session, src_session_list, options, logger):
     generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Access Rules - Admission', '/api/v1/policies/admission', 'name', 'rules', logger, skip='owner', skip_value='system', col_dep=False)
 
 
+    #TODO
     #FIXME maybe but have to translate IDs from the src tenant to the DST tenant and that is not easy to do reliably. Would have to dump to file then read from that file. Map src_session_name - custom rule name TO rule ID since the IDs change during migration.
     # #Const
     # MODULE = 'Access Rules - Kubernetes'
