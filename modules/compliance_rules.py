@@ -50,6 +50,10 @@ def migrate(dst_session, src_session_list, options, logger):
                 high_id = curr_id
         high_id += 1
 
+        #Fixes error "{"err":"rule ID xx is outside the allowed bounds [11000, 11999]"} "
+        if high_id < 11000:
+            high_id = 11000
+
 
         id_maps = {}
         if os.path.exists(f'id_mappings/{DATA_INDEX}-{src_session.tenant}.json'):
