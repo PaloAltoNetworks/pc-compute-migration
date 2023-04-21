@@ -93,6 +93,7 @@ def get_y_n(res: str) -> bool:
 starting_modules = {
     'Collections': {},
     'Tags': {},
+    'Credentials': {},
     'General Settings': {},
     'Custom Feed': {},
     'CNNS Rules': {},
@@ -102,8 +103,9 @@ starting_modules = {
     'Runtime Rules': {},
     'Vulnerability Rules': {},
     'WAAS Firewall Rules': {},
-    'Credentials': {},
-    'Alert Profiles': {},
+    'Alert Profiles': {}
+
+    
     # 'Registries': {},
     # 'Proxy Settings': {}
 }
