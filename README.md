@@ -32,7 +32,7 @@ CWP console configurations that can be migrated by this script:
 - - - Certificate Credentials
 - Alert Profiles are not fully supported yet, most types will migrate but not all.
 - - Alert Profiles that are dependent on Certificate Credentials currently fail.
-- - Out Of Band Alert Profiles are also not supported at this time.
+- - Out Of Band/Inline Alert Profiles are also not supported at this time.
 - Registries are not yet supported
 
 # Installation
