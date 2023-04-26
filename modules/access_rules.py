@@ -64,8 +64,6 @@ def migrate(dst_session, src_session_list, options, logger):
 
     #==================================================================================================================================================================================================================
 
-    #TODO
-    #FIXME Migrates a rule successfully but does not show up in the list of kubernettes rule in the SaaS CWP tenant
     #Const
     MODULE = 'Access Rules - Kubernetes'
     PULL_ENDPOINT = '/api/v1/custom-rules'
@@ -121,22 +119,35 @@ def migrate(dst_session, src_session_list, options, logger):
             logger.debug(f'Migrating {MODULE}s')
         else:
             logger.debug(f'No {MODULE}s to migrate')
+            logger.debug('Updating Kubernetes Rules List')
+
+            #Update ID list of Kubernetes rules
+            id_list = []
+            for ent_1 in dst_entities:
+                if ent['type'] == "kubernetes-audit":
+                    id_list.append(int(ent_1['_id']))
+
+            new_payload = {"_id":"kubernetesAudit","enabled":True,"customRulesIDs":id_list}
+            dst_session.request('PUT', "/api/v1/policies/kubernetes-audit", json=new_payload)
+
             continue
         
         for payload in entities_to_migrate:
             #Add entity
             logger.info(f'Adding {MODULE} from \'{src_session.tenant}\'')
             dst_session.request('PUT', PUSH_ENDPOINT + "/" + str(payload['_id']), json=payload)
-
-        #Update ID list of kuberenttes rules
+        
+        #Update ID list of Kubernetes rules
         id_list = []
-        for ent_1 in entities_to_migrate:
+        for ent_1 in dst_entities:
             if ent['type'] == "kubernetes-audit":
                 id_list.append(int(ent_1['_id']))
 
         new_payload = {"_id":"kubernetesAudit","enabled":True,"customRulesIDs":id_list}
-        logger.info(f'Updating {MODULE} from \'{src_session.tenant}\'')
+        logger.debug('Updating Kubernetes Rules List')
         dst_session.request('PUT', "/api/v1/policies/kubernetes-audit", json=new_payload)
+
+
 
     end_time = time.time()
     time_completed = round(end_time - start_time,3)

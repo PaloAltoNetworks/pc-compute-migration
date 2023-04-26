@@ -13,6 +13,9 @@ def g_migrate(dst_session, src_session_list, module, endpoint, name_index, data_
     TAG_DEPENDENCY = tag_dep
     NETWORK_LIST_DEPENDENCY = network_list_dep
 
+
+    dst_session.retries = 5
+
     #Logic
     start_time = time.time()
     logger.info(f'Starting {MODULE}s migration')
