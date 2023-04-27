@@ -24,7 +24,7 @@ CWP console configurations that can be migrated by this script:
 - 'Credentials'
 - 'Alert Profiles’
 
-### Alpha caveats:
+### Beta Caveats:
 
 - Credentials all migrate "empty" and will have to be reconfigured post migration.
 - - Not all credentials are migrating “empty” yet. These include:
