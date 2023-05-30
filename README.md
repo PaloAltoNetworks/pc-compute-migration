@@ -1,4 +1,4 @@
-# Monarch
+# MONARCH
 
 ## Prisma Cloud Compute Migration Tool - PCCMT
 
