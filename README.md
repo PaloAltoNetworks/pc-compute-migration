@@ -47,6 +47,8 @@ CWP console configurations that can be migrated by this script:
 
 Ensure all consoles and projects are on the same Prisma Cloud CWPP verison. Version mismatches will result in certain entities failing to migrate but the script will still run.
 
+Create a backup of each console involved in the migration.
+
 Gather keys, passwords, and URLs of all consoles and projects that will be involved in the migration.
 
 Using a Linux or Unix based machine, invoke Python version 3.8 and up from a command line to run the script.
