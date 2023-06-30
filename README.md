@@ -71,6 +71,8 @@ Examples:
 
 ![Alt text of the image](https://github.com/PaloAltoNetworks/pc-compute-migration/blob/main/images/project_setup.png)
 
+Certification Verification should be left to the default value of True. Only set Certificate Verification to false for debugging purposes.
+
 Once credentials have been set up, you will then be prompted with questions to configure run options for the migration.
 
 To migrate all modules, reply with 'y' to the question 'Do you want to migrate all modules? Y/N'.
