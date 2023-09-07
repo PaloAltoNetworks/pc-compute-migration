@@ -1,7 +1,9 @@
 import argparse
 import os
 
+import pcpi
 from pcpi import session_loader
+from pcpi import saas_session_manager
 from loguru import logger as loguru_logger
 from tqdm import tqdm
 
@@ -77,10 +79,40 @@ session_managers = session_loader.load_config(
     logger=loguru_logger
     )
 
+
+
+single_mode = True
+create_resource_lists_for_collections = False
+
+cspm_session = {}
 dst_session = session_managers[0].create_cwp_session()
 src_session_list = []
 for man in session_managers[1:]:
     src_session_list.append(man.create_cwp_session())
+
+
+if len(src_session_list) > 1:
+    print()
+    c_print('Denote each rule/policy/collection with project name it was sourced from? (Recommended when migrating projects) Y/N: ', color='yellow')    
+    single_mode_input = input()
+    if single_mode_input.lower() == 'y' or single_mode_input.lower() == 'yes':
+        single_mode = True
+    else:
+        single_mode = False
+
+
+if type(dst_session) == pcpi._saas_cwp_session.SaaSCWPSession:
+    print()
+    c_print('For each collection, create a Resource List? (Recommended for RBAC) Y/N: ', color='yellow')
+    rl_input = input()
+    if rl_input.lower() == 'y' or rl_input.lower() == 'yes':
+        create_resource_lists_for_collections = True
+    else:
+        create_resource_lists_for_collections = False
+
+    cspm_session = session_managers[0].create_cspm_session()
+
+
 
 #Get modules to migrate--------------------------------------------------------
 #Helper function
@@ -89,7 +121,9 @@ def get_y_n(res: str) -> bool:
         return True
     else:
         return False
-        
+
+
+
 starting_modules = {
     'Collections': {},
     'Tags': {},
@@ -121,7 +155,7 @@ c_print('Do you want to migrate all modules? Y/N', color='green')
 if get_y_n(input()):
     c_print('Press enter key to begin migration...', color='yellow')
     input()
-    migrate(dst_session, src_session_list, starting_modules, loguru_logger)
+    migrate(dst_session, src_session_list, starting_modules, single_mode, cspm_session, create_resource_lists_for_collections, loguru_logger)
 else:
     for mod_name in starting_modules.keys():
         c_print(f'Do you want to enable the \'{mod_name}\' module? Y/N', color='blue')
@@ -130,4 +164,4 @@ else:
 
     c_print('Press enter key to begin migration...', color='yellow')
     input()
-    migrate(dst_session, src_session_list, enabled_modules, loguru_logger)
+    migrate(dst_session, src_session_list, enabled_modules, single_mode, cspm_session, create_resource_lists_for_collections, loguru_logger)

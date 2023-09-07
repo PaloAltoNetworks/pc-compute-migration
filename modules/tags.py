@@ -1,6 +1,13 @@
 import time
 from tqdm import tqdm
-def migrate(dst_session, src_session_list, options, logger):
+
+def create_name(single_mode, session_name, data_name):
+    if single_mode:
+        return data_name
+    else:
+        session_name + ' - ' + data_name
+
+def migrate(dst_session, src_session_list, options, single_mode, logger):
     #Const
     MODULE = 'Tag'
     NAME_INDEX = 'name'
@@ -24,7 +31,7 @@ def migrate(dst_session, src_session_list, options, logger):
         #Compare entities
         entities_to_migrate = []
         for ent in src_entities:
-            new_name = src_session.tenant + ' - ' + ent[NAME_INDEX]
+            new_name = create_name(single_mode, src_session.tenant, ent[NAME_INDEX])
             if new_name not in dst_entities_names:
                 entities_to_migrate.append(ent)
 
@@ -36,7 +43,7 @@ def migrate(dst_session, src_session_list, options, logger):
 
         for ent_payload in tqdm(entities_to_migrate, desc=f'Adding {MODULE}s', leave=False):
             #Create custom name for entity
-            new_name = src_session.tenant + ' - ' + ent_payload[NAME_INDEX]
+            new_name = create_name(single_mode, src_session.tenant, ent_payload[NAME_INDEX])
             ent_payload[NAME_INDEX] = new_name
 
             #Add entity

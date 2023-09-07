@@ -1,6 +1,47 @@
 import time
 from tqdm import tqdm
-def migrate(dst_session, src_session_list, options, logger):
+import json
+
+
+def create_rl(session, collection_data):
+
+    import json
+    with open('collections.json', 'w') as outfile:
+        json.dump(collection_data, outfile)
+
+    name = collection_data['name']
+
+    payload = {
+        "description": "Automatically Created",
+        "members": [
+            {
+                "appIDs":collection_data.get('appIDs', "*"),
+                "clusters":collection_data.get('clusters', "*"),
+                "codeRepos": collection_data.get('codeRepos', "*"),
+                "containers": collection_data.get('containers', "*"),
+                "functions": collection_data.get('functions', "*"),
+                "hosts": collection_data.get('hosts', "*"),
+                "images": collection_data.get('images', "*"),
+                "labels": collection_data.get('labels', "*"),
+                "namespaces": collection_data.get('namespaces', "*")
+            }
+        ],
+        "name": name,
+        "resourceListType": "COMPUTE_ACCESS_GROUP"
+    }
+
+    session.request('POST', '/v1/resource_list', json=payload)
+
+
+
+def create_name(single_mode, session_name, data_name):
+    if single_mode:
+        return data_name
+    else:
+        session_name + ' - ' + data_name
+
+
+def migrate(dst_session, src_session_list, options, single_mode, cspm_session, create_rl_for_collections, logger):
     #Const
     MODULE = 'Collection'
     NAME_INDEX = 'name'
@@ -24,7 +65,7 @@ def migrate(dst_session, src_session_list, options, logger):
         #Compare entities
         entities_to_migrate = []
         for ent in src_entities:
-            new_name = src_session.tenant + ' - ' + ent[NAME_INDEX]
+            new_name = create_name(single_mode, src_session.tenant, ent[NAME_INDEX])
             if new_name not in dst_entities_names:
                 entities_to_migrate.append(ent)
 
@@ -40,12 +81,15 @@ def migrate(dst_session, src_session_list, options, logger):
                 continue
 
             #Create custom name for entity
-            new_name = src_session.tenant + ' - ' + ent_payload[NAME_INDEX]
+            new_name = create_name(single_mode, src_session.tenant, ent_payload[NAME_INDEX])
             ent_payload[NAME_INDEX] = new_name
 
             #Add entity
             logger.info(f'Adding {MODULE} from \'{src_session.tenant}\'')
             dst_session.request('POST', PUSH_ENDPOINT, json=ent_payload)
+
+            if create_rl_for_collections:
+                create_rl(cspm_session, ent_payload)
 
     end_time = time.time()
     time_completed = round(end_time - start_time,3)

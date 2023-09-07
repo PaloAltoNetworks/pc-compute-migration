@@ -1,7 +1,13 @@
 import time
 from tqdm import tqdm
 
-def migrate(dst_session, src_session_list, options, logger):
+def create_name(single_mode, session_name, data_name):
+    if single_mode:
+        return data_name
+    else:
+        session_name + ' - ' + data_name
+
+def migrate(dst_session, src_session_list, options, single_mode, logger):
     MODULE = 'Custom Rules'
     NAME_INDEX = 'name'
     PULL_ENDPOINT = '/api/v1/custom-rules'
@@ -44,7 +50,7 @@ def migrate(dst_session, src_session_list, options, logger):
             for ent in src_entities:
                 if ent['owner'] == 'system':
                     continue
-                new_name = src_session.tenant + ' - ' + ent[NAME_INDEX]
+                new_name = create_name(single_mode,src_session.tenant, ent[NAME_INDEX])
                 if new_name not in dst_names:
                     ent['_id'] = high_id
                     high_id += 1
@@ -59,7 +65,7 @@ def migrate(dst_session, src_session_list, options, logger):
 
         for index, ent_payload in tqdm(enumerate(entities_to_migrate), desc='Custom Rules Migration', leave=False):
             #Create custom name for entity
-            new_name = src_session.tenant + ' - ' + ent_payload[NAME_INDEX]
+            new_name = create_name(single_mode,src_session.tenant, ent_payload[NAME_INDEX])
             entities_to_migrate[index][NAME_INDEX] = new_name
             _id = ent_payload['_id']
 
