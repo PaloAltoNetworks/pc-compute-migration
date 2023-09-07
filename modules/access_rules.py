@@ -2,10 +2,16 @@ from modules import generic_pull_put_migrate
 import time
 from tqdm import tqdm
 
-def migrate(dst_session, src_session_list, options, logger):
-    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Access Rules - Docker', '/api/v1/policies/docker', 'name', 'rules', logger)
+def create_name(single_mode, session_name, data_name):
+    if single_mode:
+        return data_name
+    else:
+        session_name + ' - ' + data_name
 
-    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Access Rules - Admission', '/api/v1/policies/admission', 'name', 'rules', logger, skip='owner', skip_value='system', col_dep=False)
+def migrate(dst_session, src_session_list, options, single_mode, logger):
+    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Access Rules - Docker', '/api/v1/policies/docker', 'name', 'rules', single_mode, logger)
+
+    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Access Rules - Admission', '/api/v1/policies/admission', 'name', 'rules', single_mode, logger, skip='owner', skip_value='system', col_dep=False)
 
     #==================================================================================================================================================================================================================
 
@@ -39,8 +45,8 @@ def migrate(dst_session, src_session_list, options, logger):
         entities_to_migrate = []
         if src_entities:
             for ent in src_entities:
-                if src_session.tenant + ' - ' + ent['name'] not in [dst_ent['name'] for dst_ent in dst_entities]:
-                    ent['name'] = src_session.tenant + ' - ' + ent['name']
+                if create_name(single_mode, src_session.tenant,ent['name']) not in [dst_ent['name'] for dst_ent in dst_entities]:
+                    ent['name'] = create_name(single_mode, src_session.tenant,ent['name'])
                     entities_to_migrate.append(ent)
 
         #Migrate entities------------------------------------------------------
@@ -108,8 +114,8 @@ def migrate(dst_session, src_session_list, options, logger):
         entities_to_migrate = []
         if src_entities:
             for ent in src_entities:
-                if src_session.tenant + ' - ' + ent['name'] not in [dst_ent['name'] for dst_ent in dst_entities]:
-                    ent['name'] = src_session.tenant + ' - ' + ent['name']
+                if create_name(single_mode, src_session.tenant,ent['name']) not in [dst_ent['name'] for dst_ent in dst_entities]:
+                    ent['name'] = create_name(single_mode, src_session.tenant,ent['name'])
                     ent['_id'] = high_id
                     high_id +=1
                     entities_to_migrate.append(ent)

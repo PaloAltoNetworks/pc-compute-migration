@@ -3,8 +3,14 @@ from tqdm import tqdm
 import json
 import os
 
+def create_name(single_mode, session_name, data_name):
+    if single_mode:
+        return data_name
+    else:
+        session_name + ' - ' + data_name
+
     
-def migrate(dst_session, src_session_list, options, logger):
+def migrate(dst_session, src_session_list, options, single_mode, logger):
     #NETWORKS MIGRATE FIRST - creation translation table
     MODULE = 'CNNS - Network Entities'
     PULL_ENDPOINT = '/api/v1/policies/firewall/network'
@@ -54,7 +60,7 @@ def migrate(dst_session, src_session_list, options, logger):
             entities_to_migrate = []
             if src_entities:
                 for ent in src_entities:
-                    new_name = src_session.tenant + ' - ' + ent[NAME_INDEX]
+                    new_name = create_name(single_mode, src_session.tenant,ent[NAME_INDEX])
                     if new_name not in dst_names:
                         id_maps.update({str(ent['_id']): int(high_id)})
                         ent['_id'] = high_id
@@ -72,14 +78,14 @@ def migrate(dst_session, src_session_list, options, logger):
 
         for index, ent_payload in tqdm(enumerate(entities_to_migrate), desc='Custom Rules Migration', leave=False):
             #Create custom name for entity
-            new_name = src_session.tenant + ' - ' + ent_payload[NAME_INDEX]
+            new_name = create_name(single_mode, src_session.tenant,ent_payload[NAME_INDEX])
             entities_to_migrate[index][NAME_INDEX] = new_name
 
             #Translate collection names
             if 'collections' in ent_payload:
                 for index2, col in enumerate(entities_to_migrate[index]['collections']):
                     if entities_to_migrate[index]['collections'][index2]['system'] == False:
-                        entities_to_migrate[index]['collections'][index2]['name'] = src_session.tenant + ' - ' + entities_to_migrate[index]['collections'][index2]['name']
+                        entities_to_migrate[index]['collections'][index2]['name'] = create_name(single_mode, src_session.tenant, entities_to_migrate[index]['collections'][index2]['name'])
 
             #Add entity
         payload = dst_res.json()
@@ -143,7 +149,7 @@ def migrate(dst_session, src_session_list, options, logger):
             for ent in src_entities:
                 if ent['owner'] == 'system':
                     continue
-                new_name = src_session.tenant + ' - ' + ent[NAME_INDEX]
+                new_name = create_name(single_mode, src_session.tenant,ent['name'])
                 if new_name not in dst_names:
                     ent['id'] = high_id
                     high_id += 1
@@ -166,7 +172,7 @@ def migrate(dst_session, src_session_list, options, logger):
 
         for index, ent_payload in tqdm(enumerate(entities_to_migrate), desc='Custom Rules Migration', leave=False):
             #Create custom name for entity
-            new_name = src_session.tenant + ' - ' + ent_payload[NAME_INDEX]
+            new_name = create_name(single_mode, src_session.tenant,ent_payload[NAME_INDEX])
             entities_to_migrate[index][NAME_INDEX] = new_name
 
             #Translate IDs using translation table
@@ -237,7 +243,7 @@ def migrate(dst_session, src_session_list, options, logger):
             for ent in src_entities:
                 if ent['owner'] == 'system':
                     continue
-                new_name = src_session.tenant + ' - ' + ent[NAME_INDEX]
+                new_name = create_name(single_mode, src_session.tenant,ent[NAME_INDEX])
                 if new_name not in dst_names:
                     ent['id'] = high_id
                     high_id += 1
@@ -260,7 +266,7 @@ def migrate(dst_session, src_session_list, options, logger):
 
         for index, ent_payload in tqdm(enumerate(entities_to_migrate), desc='Custom Rules Migration', leave=False):
             #Create custom name for entity
-            new_name = src_session.tenant + ' - ' + ent_payload[NAME_INDEX]
+            new_name = create_name(single_mode, src_session.tenant,ent_payload[NAME_INDEX])
             entities_to_migrate[index][NAME_INDEX] = new_name
 
             #Translate IDs using translation table

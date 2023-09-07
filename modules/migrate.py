@@ -16,55 +16,56 @@ from modules import proxy_settings
 
 from tqdm import tqdm
 
-def migrate(dst_session: object, src_session_list: list, enabled_modules: dict, logger) -> None:
+def migrate(dst_session: object, src_session_list: list, enabled_modules: dict, single_mode, cspm_session, create_rl_for_collection, logger) -> None:
 
     for module in tqdm(enabled_modules.keys(), desc='Processing Modules', leave=False, initial=1):
             if module == 'Collections':
                 options = enabled_modules[module]
-                collections.migrate(dst_session, src_session_list, options, logger)
+                collections.migrate(dst_session, src_session_list, options, single_mode, cspm_session, create_rl_for_collection, logger)
+
             elif module == 'Tags':
                 options = enabled_modules[module]
-                tags.migrate(dst_session, src_session_list, options, logger)
+                tags.migrate(dst_session, src_session_list, options, single_mode, logger)
 
             elif module == 'General Settings':
                 options = enabled_modules[module]
-                general_settings.migrate(dst_session, src_session_list, options, logger)
+                general_settings.migrate(dst_session, src_session_list, options, single_mode, logger)
 
             elif module == 'Custom Feed':
                 options = enabled_modules[module]
-                custom_feed.migrate(dst_session, src_session_list, options, logger)
+                custom_feed.migrate(dst_session, src_session_list, options, single_mode, logger)
 
             elif module == 'Access Rules':
                 options = enabled_modules[module]
-                access_rules.migrate(dst_session, src_session_list, options, logger)
+                access_rules.migrate(dst_session, src_session_list, options, single_mode, logger)
 
             elif module == 'CNNS Rules':
                 options = enabled_modules[module]
-                cnns_rules.migrate(dst_session, src_session_list, options, logger)
+                cnns_rules.migrate(dst_session, src_session_list, options, single_mode, logger)
 
             elif module == 'Compliance Rules':
                 options = enabled_modules[module]
-                compliance_rules.migrate(dst_session, src_session_list, options, logger)
+                compliance_rules.migrate(dst_session, src_session_list, options, single_mode, logger)
 
             elif module == 'Custom Rules':
                 options = enabled_modules[module]
-                custom_rules.migrate(dst_session, src_session_list, options, logger)
+                custom_rules.migrate(dst_session, src_session_list, options, single_mode, logger)
 
             elif module == 'Runtime Rules':
                 options = enabled_modules[module]
-                runtime_rules.migrate(dst_session, src_session_list, options, logger)
+                runtime_rules.migrate(dst_session, src_session_list, options, single_mode, logger)
 
             elif module == 'Vulnerability Rules':
                 options = enabled_modules[module]
-                vulnerability_rules.migrate(dst_session, src_session_list, options, logger)
+                vulnerability_rules.migrate(dst_session, src_session_list, options, single_mode, logger)
 
             elif module == 'WAAS Firewall Rules':
                 options = enabled_modules[module]
-                waas_firewall_rules.migrate(dst_session, src_session_list, options, logger)
+                waas_firewall_rules.migrate(dst_session, src_session_list, options, single_mode, logger)
 
             elif module == 'Alert Profiles':
                 options = enabled_modules[module]
-                alert_profiles.migrate(dst_session, src_session_list, options, logger)
+                alert_profiles.migrate(dst_session, src_session_list, options, single_mode, logger)
 
             # elif module == 'Cloud Discovery':
             #     options = enabled_modules[module]
@@ -72,15 +73,15 @@ def migrate(dst_session: object, src_session_list: list, enabled_modules: dict, 
 
             elif module == 'Credentials':
                 options = enabled_modules[module]
-                credentials.migrate(dst_session, src_session_list, options, logger)
+                credentials.migrate(dst_session, src_session_list, options, single_mode, logger)
 
-            elif module == 'Registries':
-                options = enabled_modules[module]
-                registries.migrate(dst_session, src_session_list, options, logger)
+            # elif module == 'Registries':
+            #     options = enabled_modules[module]
+            #     registries.migrate(dst_session, src_session_list, options, logger)
 
-            elif module == 'Proxy Settings':
-                options = enabled_modules[module]
-                proxy_settings.migrate(dst_session, src_session_list, options, logger)
+            # elif module == 'Proxy Settings':
+            #     options = enabled_modules[module]
+            #     proxy_settings.migrate(dst_session, src_session_list, options, logger)
 
             else:
                 logger.error(f'Unknown module name: \'{module}\' encountered. Skipping...')

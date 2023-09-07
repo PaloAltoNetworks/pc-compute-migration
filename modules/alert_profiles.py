@@ -1,7 +1,13 @@
 import time
 from tqdm import tqdm
 
-def migrate(dst_session, src_session_list, options, logger):
+def create_name(single_mode, session_name, data_name):
+    if single_mode:
+        return data_name
+    else:
+        session_name + ' - ' + data_name
+
+def migrate(dst_session, src_session_list, options, single_mode, logger):
     #Const
     skip = False
     MODULE = 'Alert Profile'
@@ -61,7 +67,7 @@ def migrate(dst_session, src_session_list, options, logger):
         entities_to_migrate = []
         if src_entities:
             for ent in src_entities:
-                new_name = src_session.tenant + ' - ' + ent.get(NAME_INDEX,'')
+                new_name = create_name(single_mode, src_session.tenant, ent.get(NAME_INDEX,''))
                 
                 if skip:
                     if ent[skip] != skip_value:
@@ -80,7 +86,7 @@ def migrate(dst_session, src_session_list, options, logger):
 
         for index, ent_payload in enumerate(entities_to_migrate):
             #Create custom name for entity
-            new_name = src_session.tenant + ' - ' + ent_payload.get(NAME_INDEX,'')
+            new_name = create_name(single_mode,src_session.tenant, ent_payload.get(NAME_INDEX,''))
             if entities_to_migrate[index].get(NAME_INDEX,''):
                 entities_to_migrate[index][NAME_INDEX] = new_name
             
@@ -88,50 +94,50 @@ def migrate(dst_session, src_session_list, options, logger):
                 #Translate collection names
                 for index2, col in enumerate(entities_to_migrate[index]['collections']):
                     if entities_to_migrate[index]['collections'][index2]['system'] == False:
-                        entities_to_migrate[index]['collections'][index2]['name'] = src_session.tenant + ' - ' + entities_to_migrate[index]['collections'][index2]['name']
+                        entities_to_migrate[index]['collections'][index2]['name'] = create_name(single_mode,src_session.tenant,entities_to_migrate[index]['collections'][index2]['name'])
             
             if TAG_DEPENDENCY == True:
                 #Translate tag name
                 for index2, col in enumerate(entities_to_migrate[index].get('tags', [])):
-                    entities_to_migrate[index]['tags'][index2]['name'] = src_session.tenant + ' - ' + entities_to_migrate[index]['tags'][index2]['name']
+                    entities_to_migrate[index]['tags'][index2]['name'] = create_name(single_mode, src_session.tenant, entities_to_migrate[index]['tags'][index2]['name'])
 
             #Translate Credentials
             #'cortex'
             if entities_to_migrate[index]['cortex']['credentialId']:
                 curr = entities_to_migrate[index]['cortex']['credentialId']
-                entities_to_migrate[index]['cortex']['credentialId'] = src_session.tenant + ' - ' + curr
+                entities_to_migrate[index]['cortex']['credentialId'] = create_name(single_mode, src_session.tenant, curr)
             #'email'
             if entities_to_migrate[index]['email']['credentialId']:
                 curr = entities_to_migrate[index]['email']['credentialId']
-                entities_to_migrate[index]['email']['credentialId'] = src_session.tenant + ' - ' + curr
+                entities_to_migrate[index]['email']['credentialId'] = create_name(single_mode, src_session.tenant, curr)
             #'gcpPubsub'
             if entities_to_migrate[index]['gcpPubsub']['credentialId']:
                 curr = entities_to_migrate[index]['gcpPubsub']['credentialId']
-                entities_to_migrate[index]['gcpPubsub']['credentialId'] = src_session.tenant + ' - ' + curr
+                entities_to_migrate[index]['gcpPubsub']['credentialId'] = create_name(single_mode, src_session.tenant, curr)
             #'jira'
             if entities_to_migrate[index]['jira']['credentialId']:
                 curr = entities_to_migrate[index]['jira']['credentialId']
-                entities_to_migrate[index]['jira']['credentialId'] = src_session.tenant + ' - ' + curr
+                entities_to_migrate[index]['jira']['credentialId'] = create_name(single_mode, src_session.tenant, curr)
             #'securityAdvisor
             if entities_to_migrate[index]['securityAdvisor']['credentialID']: #WHY IS THIS DIFFERENT????
                 curr = entities_to_migrate[index]['securityAdvisor']['credentialID']
-                entities_to_migrate[index]['securityAdvisor']['credentialID'] = src_session.tenant + ' - ' + curr
+                entities_to_migrate[index]['securityAdvisor']['credentialID'] = create_name(single_mode, src_session.tenant, curr)
             #'securityCenter'
             if entities_to_migrate[index]['securityCenter']['credentialId']:
                 curr = entities_to_migrate[index]['securityCenter']['credentialId']
-                entities_to_migrate[index]['securityCenter']['credentialId'] = src_session.tenant + ' - ' + curr
+                entities_to_migrate[index]['securityCenter']['credentialId'] = create_name(single_mode, src_session.tenant, curr)
             #'securityHub'
             if entities_to_migrate[index]['securityHub']['credentialId']:
                 curr = entities_to_migrate[index]['securityHub']['credentialId']
-                entities_to_migrate[index]['securityHub']['credentialId'] = src_session.tenant + ' - ' + curr
+                entities_to_migrate[index]['securityHub']['credentialId'] = create_name(single_mode, src_session.tenant, curr)
             #'serviceNow'
             if entities_to_migrate[index]['serviceNow']['credentialID']: #WHY IS THIS DIFFERENT????
                 curr = entities_to_migrate[index]['serviceNow']['credentialID']
-                entities_to_migrate[index]['serviceNow']['credentialID'] = src_session.tenant + ' - ' + curr
+                entities_to_migrate[index]['serviceNow']['credentialID'] = create_name(single_mode, src_session.tenant, curr)
             #'webhook'
             if entities_to_migrate[index]['webhook']['credentialId']:
                 curr = entities_to_migrate[index]['webhook']['credentialId']
-                entities_to_migrate[index]['webhook']['credentialId'] = src_session.tenant + ' - ' + curr
+                entities_to_migrate[index]['webhook']['credentialId'] = create_name(single_mode, src_session.tenant, curr)
 
             #Translate  Policy Rules and remove unsupported policy type
             if "outOfBandAppFirewall" in entities_to_migrate[index]['policy']:
@@ -140,14 +146,13 @@ def migrate(dst_session, src_session_list, options, logger):
             for plc_name in entities_to_migrate[index]['policy'].keys():
                 if entities_to_migrate[index]['policy'][plc_name]['rules']:
                     for index3, rule_name in enumerate(entities_to_migrate[index]['policy'][plc_name]['rules']):
-                        new_name = src_session.tenant + ' - ' + rule_name
+                        new_name = create_name(single_mode,src_session.tenant, rule_name)
                         entities_to_migrate[index]['policy'][plc_name]['rules'][index3] = new_name
 
 
-            
-
             #Add entity
-            logger.info(f'Adding {MODULE} from \'{src_session.tenant}\'')
+            name =entities_to_migrate[index]['name']
+            logger.info(f'Adding {name} {MODULE} from \'{src_session.tenant}\'')
             dst_session.request('POST', PUSH_ENDPOINT, json=entities_to_migrate[index])
 
     end_time = time.time()

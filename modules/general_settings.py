@@ -3,7 +3,14 @@ from tqdm import tqdm
 
 import json
 
-def migrate(dst_session, src_session_list, options, logger):
+
+def create_name(single_mode, session_name, data_name):
+    if single_mode:
+        return data_name
+    else:
+        session_name + ' - ' + data_name
+
+def migrate(dst_session, src_session_list, options, single_mode, logger):
 
     #Const
     RUNTIME =  '/api/v1/settings/runtime-secret-specs'
@@ -46,7 +53,7 @@ def migrate(dst_session, src_session_list, options, logger):
         #Compare entities
         entities_to_migrate = []
         for ent in src_entities:
-            new_name = src_session.tenant + ' - ' + ent[NAME_INDEX]
+            new_name = create_name(single_mode, src_session.tenant, ent[NAME_INDEX])
             if new_name not in dst_entities_names:
                 entities_to_migrate.append(ent)
 
@@ -59,7 +66,7 @@ def migrate(dst_session, src_session_list, options, logger):
 
         for index, ent_payload in enumerate(entities_to_migrate):
             #Create custom name for entity
-            new_name = src_session.tenant + ' - ' + ent_payload[NAME_INDEX]
+            new_name = create_name(single_mode, src_session.tenant, ent_payload[NAME_INDEX])
             ent_payload[index][NAME_INDEX] = new_name
 
         #Extend existing src_entities with new entities
@@ -104,7 +111,7 @@ def migrate(dst_session, src_session_list, options, logger):
         #Compare entities
         entities_to_migrate = []
         for ent in src_entities:
-            new_name = src_session.tenant + ' - ' + ent[NAME_INDEX]
+            new_name = create_name(single_mode, src_session.tenant, ent[NAME_INDEX])
            
             #FIXME
             if new_name not in dst_entities_names and ent.get('placeholder', '') != '': #if placeholder is missing its a default rule #TODO this is not true and will cause valid custom rules to not migrate
@@ -119,7 +126,7 @@ def migrate(dst_session, src_session_list, options, logger):
 
         for index, ent_payload in enumerate(entities_to_migrate):
             #Create custom name for entity
-            new_name = src_session.tenant + ' - ' + ent_payload[NAME_INDEX]
+            new_name = create_name(single_mode, src_session.tenant, ent_payload[NAME_INDEX])
             entities_to_migrate[index][NAME_INDEX] = new_name
 
         #Extend existing src_entities with new entities

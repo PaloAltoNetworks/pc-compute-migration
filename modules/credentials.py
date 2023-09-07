@@ -1,7 +1,13 @@
 import time
 from tqdm import tqdm
 
-def migrate(dst_session, src_session_list, options, logger):
+def create_name(single_mode, session_name, data_name):
+    if single_mode:
+        return data_name
+    else:
+        session_name + ' - ' + data_name
+
+def migrate(dst_session, src_session_list, options, single_mode, logger):
     # logger.warning('Credentials migration not implemented')
 
     MODULE = 'Credential'
@@ -60,7 +66,7 @@ def migrate(dst_session, src_session_list, options, logger):
         entities_to_migrate = []
         if src_entities:
             for ent in src_entities:
-                new_name = src_session.tenant + ' - ' + ent.get(NAME_INDEX,'')
+                new_name = create_name(single_mode,src_session.tenant, ent.get(NAME_INDEX,''))
                 
                 if skip:
                     if ent[skip] != skip_value:
@@ -80,7 +86,7 @@ def migrate(dst_session, src_session_list, options, logger):
         for index, ent_payload in enumerate(entities_to_migrate):
 
             #Create custom name for entity
-            new_name = src_session.tenant + ' - ' + ent_payload.get(NAME_INDEX,'')
+            new_name = create_name(single_mode, src_session.tenant, ent_payload.get(NAME_INDEX,''))
             if entities_to_migrate[index].get(NAME_INDEX,''):
                 entities_to_migrate[index][NAME_INDEX] = new_name
 

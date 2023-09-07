@@ -3,7 +3,14 @@ from tqdm import tqdm
 
 from modules import generic_pull_put_migrate
 
-def migrate(dst_session, src_session_list, options, logger):
+
+def create_name(single_mode, session_name, data_name):
+    if single_mode:
+        return data_name
+    else:
+        session_name + ' - ' + data_name
+
+def migrate(dst_session, src_session_list, options, single_mode, logger):
 
     #==============================================================================================IP Reputation List Addresses
     #Const
@@ -60,11 +67,11 @@ def migrate(dst_session, src_session_list, options, logger):
 
     #==============================================================================================Cookie Cutter migrations
 
-    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Malware Signatures/Trusted Executables', 'api/v1/feeds/custom/malware', 'name', 'feed', logger, col_dep=False)
+    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Malware Signatures/Trusted Executables', 'api/v1/feeds/custom/malware', 'name', 'feed', single_mode, logger, col_dep=False)
 
-    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Custom Vulnerabilities', 'api/v1/feeds/custom/custom-vulnerabilities', 'name', 'rules', logger, col_dep=False)
+    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Custom Vulnerabilities', 'api/v1/feeds/custom/custom-vulnerabilities', 'name', 'rules', single_mode, logger, col_dep=False)
 
-    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'CVE Allow List', '/api/v1/feeds/custom/cve-allow-list', 'description', 'rules', logger, col_dep=False)
+    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'CVE Allow List', '/api/v1/feeds/custom/cve-allow-list', 'description', 'rules', single_mode, logger, col_dep=False)
 
 
 
