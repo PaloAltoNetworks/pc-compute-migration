@@ -65,9 +65,7 @@ def migrate(dst_session, src_session_list, options, single_mode, cspm_session, c
         #Compare entities
         entities_to_migrate = []
         for ent in src_entities:
-            new_name = create_name(single_mode, src_session.tenant, ent[NAME_INDEX])
-            if new_name not in dst_entities_names:
-                entities_to_migrate.append(ent)
+            entities_to_migrate.append(ent)
 
         #Migrate entities------------------------------------------------------
         if entities_to_migrate:
@@ -85,8 +83,8 @@ def migrate(dst_session, src_session_list, options, single_mode, cspm_session, c
             ent_payload[NAME_INDEX] = new_name
 
             #Add entity
-            logger.info(f'Adding {MODULE} from \'{src_session.tenant}\'')
-            dst_session.request('POST', PUSH_ENDPOINT, json=ent_payload)
+            # logger.info(f'Adding {MODULE} from \'{src_session.tenant}\'')
+            # dst_session.request('POST', PUSH_ENDPOINT, json=ent_payload)
 
             if create_rl_for_collections:
                 create_rl(cspm_session, ent_payload)
