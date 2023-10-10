@@ -3,34 +3,74 @@ from tqdm import tqdm
 import json
 
 
-def create_rl(session, collection_data):
+def create_role(session, collection_name, rl_id):
 
-    import json
-    with open('collections.json', 'w') as outfile:
-        json.dump(collection_data, outfile)
-
-    name = collection_data['name']
-
+    session.logger.debug(f'Adding Role for Collection: {collection_name}')
     payload = {
-        "description": "Automatically Created",
-        "members": [
-            {
-                "appIDs":collection_data.get('appIDs', "*"),
-                "clusters":collection_data.get('clusters', "*"),
-                "codeRepos": collection_data.get('codeRepos', "*"),
-                "containers": collection_data.get('containers', "*"),
-                "functions": collection_data.get('functions', "*"),
-                "hosts": collection_data.get('hosts', "*"),
-                "images": collection_data.get('images', "*"),
-                "labels": collection_data.get('labels', "*"),
-                "namespaces": collection_data.get('namespaces', "*")
-            }
+        "additionalAttributes": {
+            "hasDefenderPermissions":False,
+            "onlyAllowComputeAccess":False
+        },
+        "accountGroupIds": [
+            "bdcfe2be-a232-41b8-b105-a502216ad3ad"
         ],
-        "name": name,
-        "resourceListType": "COMPUTE_ACCESS_GROUP"
+        "description": "",
+        "name": f"Role For {collection_name}",
+        "resourceListIds": [
+            rl_id
+        ],
+        "codeRepositoryIds": [],
+        "roleType": "Account Group Read Only"
     }
 
-    session.request('POST', '/v1/resource_list', json=payload)
+def collection_for_user(session, collection_name):
+    session.logger.debug('Getting Collection Usage')
+    url = f'/api/v1/collections/{collection_name}/usages'
+    res = session.request('GET', url)
+    
+    
+    if res.json():
+        for el in res.json():
+            if el['type'] == 'user':
+                return True
+        
+    return False
+
+
+def create_rl(src_session, session, collection_data):
+    name = collection_data['name']
+
+    if collection_for_user(src_session, name):
+        import json
+        with open('collections.json', 'w') as outfile:
+            json.dump(collection_data, outfile)
+
+
+        payload = {
+            "description": "Automatically Created",
+            "members": [
+                {
+                    "appIDs":collection_data.get('appIDs', "*"),
+                    "clusters":collection_data.get('clusters', "*"),
+                    "codeRepos": collection_data.get('codeRepos', "*"),
+                    "containers": collection_data.get('containers', "*"),
+                    "functions": collection_data.get('functions', "*"),
+                    "hosts": collection_data.get('hosts', "*"),
+                    "images": collection_data.get('images', "*"),
+                    "labels": collection_data.get('labels', "*"),
+                    "namespaces": collection_data.get('namespaces', "*")
+                }
+            ],
+            "name": name,
+            "resourceListType": "COMPUTE_ACCESS_GROUP"
+        }
+
+        res = session.request('POST', '/v1/resource_list', json=payload)
+
+
+        if res.status_code == 200 or res.status_code == 201:
+            rl_id = res.json()['id']
+            create_role(session, name, rl_id)
 
 
 
@@ -65,7 +105,9 @@ def migrate(dst_session, src_session_list, options, single_mode, cspm_session, c
         #Compare entities
         entities_to_migrate = []
         for ent in src_entities:
-            entities_to_migrate.append(ent)
+            new_name = create_name(single_mode, src_session.tenant, ent[NAME_INDEX])
+            if new_name not in dst_entities_names:
+                entities_to_migrate.append(ent)
 
         #Migrate entities------------------------------------------------------
         if entities_to_migrate:
@@ -87,7 +129,7 @@ def migrate(dst_session, src_session_list, options, single_mode, cspm_session, c
             # dst_session.request('POST', PUSH_ENDPOINT, json=ent_payload)
 
             if create_rl_for_collections:
-                create_rl(cspm_session, ent_payload)
+                create_rl(src_session, cspm_session, ent_payload) 
 
     end_time = time.time()
     time_completed = round(end_time - start_time,3)
