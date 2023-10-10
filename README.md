@@ -2,7 +2,12 @@
 
 ## Prisma Cloud Compute Migration Tool - PCCMT
 
-# Beta 04/27/2023
+# Beta 10/10/2023
+
+## New Features 10/10/2023
+
+During collections migration, the script can now create Compute Access Groups and Roles in the SaaS environment for each self hosted Collection that was used for RBAC.
+To use this feature, response with Y when prompted to enable Compute Access Group and Role creation for SaaS RBAC.
 
 ### Features
 
