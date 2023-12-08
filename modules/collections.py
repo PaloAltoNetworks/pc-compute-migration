@@ -125,8 +125,10 @@ def migrate(dst_session, src_session_list, options, single_mode, cspm_session, c
             ent_payload[NAME_INDEX] = new_name
 
             #Add entity
-            # logger.info(f'Adding {MODULE} from \'{src_session.tenant}\'')
-            # dst_session.request('POST', PUSH_ENDPOINT, json=ent_payload)
+            logger.info(f'Adding {MODULE} from \'{src_session.tenant}\'')
+            dst_session.request('POST', PUSH_ENDPOINT, json=ent_payload)
+
+            
 
             if create_rl_for_collections:
                 create_rl(src_session, cspm_session, ent_payload) 
