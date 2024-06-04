@@ -9,7 +9,7 @@ def create_name(single_mode, session_name, data_name):
         session_name + ' - ' + data_name
 
 def migrate(dst_session, src_session_list, options, single_mode, logger):
-    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Access Rules - Docker', '/api/v1/policies/docker', 'name', 'rules', single_mode, logger)
+    # generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Access Rules - Docker', '/api/v1/policies/docker', 'name', 'rules', single_mode, logger)
 
     generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Access Rules - Admission', '/api/v1/policies/admission', 'name', 'rules', single_mode, logger, skip='owner', skip_value='system', col_dep=False)
 
