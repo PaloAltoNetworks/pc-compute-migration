@@ -83,6 +83,7 @@ session_managers = session_loader.load_config(
 
 single_mode = True
 create_resource_lists_for_collections = False
+prefix = ''
 
 cspm_session = {}
 dst_session = session_managers[0].create_cwp_session()
@@ -100,13 +101,28 @@ if len(src_session_list) > 1:
     else:
         single_mode = False
 
+print()
+c_print('Add a prefix to all migrated rule, collection, and tag names? Y/N: ', color='yellow')
+prefix_input = input()
+if prefix_input.lower() == 'y' or prefix_input.lower() == 'yes':
+    c_print('Enter prefix (will be prepended as "<prefix> - <name>"): ', color='green')
+    prefix = input().strip()
+
 
 if type(dst_session) == pcpi._saas_cwp_session.SaaSCWPSession:
     print()
     c_print('For each collection, create a Resource List? (Recommended for RBAC) Y/N: ', color='yellow')
     rl_input = input()
     if rl_input.lower() == 'y' or rl_input.lower() == 'yes':
-        create_resource_lists_for_collections = True
+        c_print('Create Resource Lists for:', color='yellow')
+        c_print('  1. All collections', color='green')
+        c_print('  2. Only collections used for RBAC (user assignments)', color='green')
+        c_print('Enter 1 or 2: ', color='yellow')
+        rl_mode_input = input().strip()
+        if rl_mode_input == '1':
+            create_resource_lists_for_collections = 'all'
+        else:
+            create_resource_lists_for_collections = 'rbac'
     else:
         create_resource_lists_for_collections = False
 
@@ -155,7 +171,7 @@ c_print('Do you want to migrate all modules? Y/N', color='green')
 if get_y_n(input()):
     c_print('Press enter key to begin migration...', color='yellow')
     input()
-    migrate(dst_session, src_session_list, starting_modules, single_mode, cspm_session, create_resource_lists_for_collections, loguru_logger)
+    migrate(dst_session, src_session_list, starting_modules, single_mode, cspm_session, create_resource_lists_for_collections, loguru_logger, prefix)
 else:
     for mod_name in starting_modules.keys():
         c_print(f'Do you want to enable the \'{mod_name}\' module? Y/N', color='blue')
@@ -164,4 +180,4 @@ else:
 
     c_print('Press enter key to begin migration...', color='yellow')
     input()
-    migrate(dst_session, src_session_list, enabled_modules, single_mode, cspm_session, create_resource_lists_for_collections, loguru_logger)
+    migrate(dst_session, src_session_list, enabled_modules, single_mode, cspm_session, create_resource_lists_for_collections, loguru_logger, prefix)

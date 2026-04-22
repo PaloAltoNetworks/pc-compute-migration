@@ -66,10 +66,12 @@ def validate_rl_payload(payload):
     return errors
 
 
-def create_rl(src_session, session, collection_data):
+def create_rl(src_session, session, collection_data, original_name, rl_mode='rbac'):
     name = collection_data['name']
 
-    if collection_for_user(src_session, name):
+    should_create = rl_mode == 'all' or collection_for_user(src_session, original_name)
+
+    if should_create:
         import json
         with open('collections.json', 'w') as outfile:
             json.dump(collection_data, outfile)
@@ -113,14 +115,16 @@ def create_rl(src_session, session, collection_data):
 
 
 
-def create_name(single_mode, session_name, data_name):
+def create_name(single_mode, session_name, data_name, prefix=''):
+    if prefix:
+        return prefix + ' - ' + data_name
     if single_mode:
         return data_name
     else:
-        session_name + ' - ' + data_name
+        return session_name + ' - ' + data_name
 
 
-def migrate(dst_session, src_session_list, options, single_mode, cspm_session, create_rl_for_collections, logger):
+def migrate(dst_session, src_session_list, options, single_mode, cspm_session, create_rl_for_collections, logger, prefix=''):
     #Const
     MODULE = 'Collection'
     NAME_INDEX = 'name'
@@ -144,7 +148,7 @@ def migrate(dst_session, src_session_list, options, single_mode, cspm_session, c
         #Compare entities
         entities_to_migrate = []
         for ent in src_entities:
-            new_name = create_name(single_mode, src_session.tenant, ent[NAME_INDEX])
+            new_name = create_name(single_mode, src_session.tenant, ent[NAME_INDEX], prefix)
             if new_name not in dst_entities_names:
                 entities_to_migrate.append(ent)
 
@@ -159,8 +163,10 @@ def migrate(dst_session, src_session_list, options, single_mode, cspm_session, c
             if ent_payload.get('system') == True:
                 continue
 
+            original_name = ent_payload[NAME_INDEX]
+
             #Create custom name for entity
-            new_name = create_name(single_mode, src_session.tenant, ent_payload[NAME_INDEX])
+            new_name = create_name(single_mode, src_session.tenant, ent_payload[NAME_INDEX], prefix)
             ent_payload[NAME_INDEX] = new_name
 
             #Add entity
@@ -170,7 +176,7 @@ def migrate(dst_session, src_session_list, options, single_mode, cspm_session, c
             
 
             if create_rl_for_collections:
-                create_rl(src_session, cspm_session, ent_payload) 
+                create_rl(src_session, cspm_session, ent_payload, original_name, create_rl_for_collections) 
 
     end_time = time.time()
     time_completed = round(end_time - start_time,3)

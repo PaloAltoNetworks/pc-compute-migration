@@ -3,13 +3,15 @@ from tqdm import tqdm
 import json
 
 
-def create_name(single_mode, session_name, data_name):
+def create_name(single_mode, session_name, data_name, prefix=''):
+    if prefix:
+        return prefix + ' - ' + data_name
     if single_mode:
         return data_name
     else:
-        session_name + ' - ' + data_name
+        return session_name + ' - ' + data_name
 
-def g_migrate(dst_session, src_session_list, module, endpoint, name_index, data_index, single_mode, logger, col_dep=True, tag_dep=False, skip='', skip_value='', data_index2='', network_list_dep=False, translate_custom_rule_ids=False):
+def g_migrate(dst_session, src_session_list, module, endpoint, name_index, data_index, single_mode, logger, col_dep=True, tag_dep=False, skip='', skip_value='', data_index2='', network_list_dep=False, translate_custom_rule_ids=False, prefix=''):
     #Const
     MODULE = module
     NAME_INDEX = name_index
@@ -44,7 +46,7 @@ def g_migrate(dst_session, src_session_list, module, endpoint, name_index, data_
             for dst_rule in dst_rules_list:
                 for src_rule in src_rules_list:
                      #Gotta translate the name with the modifications made to where it was sourced from but the built ins will have the same name
-                    if dst_rule['name'] == create_name(single_mode, src_session.tenant,src_rule['name']) or dst_rule['name'] == src_rule['name']:
+                    if dst_rule['name'] == create_name(single_mode, src_session.tenant,src_rule['name'], prefix) or dst_rule['name'] == src_rule['name']:
                         custom_rules_id_translation_matrix.update({src_rule['_id']:dst_rule['_id']})
                         continue
         
@@ -96,7 +98,7 @@ def g_migrate(dst_session, src_session_list, module, endpoint, name_index, data_
         entities_to_migrate = []
         if src_entities:
             for ent in src_entities:
-                new_name = create_name(single_mode, src_session.tenant, ent.get(NAME_INDEX,''))
+                new_name = create_name(single_mode, src_session.tenant, ent.get(NAME_INDEX,''), prefix)
                 
                 if skip:
                     if ent[skip] != skip_value:
@@ -117,7 +119,7 @@ def g_migrate(dst_session, src_session_list, module, endpoint, name_index, data_
 
         for index, ent_payload in enumerate(entities_to_migrate):
             #Create custom name for entity
-            new_name = create_name(single_mode, src_session.tenant, ent_payload.get(NAME_INDEX,''))
+            new_name = create_name(single_mode, src_session.tenant, ent_payload.get(NAME_INDEX,''), prefix)
             if entities_to_migrate[index].get(NAME_INDEX,''):
                 entities_to_migrate[index][NAME_INDEX] = new_name
             
@@ -125,22 +127,22 @@ def g_migrate(dst_session, src_session_list, module, endpoint, name_index, data_
                 #Translate collection names
                 for index2, col in enumerate(entities_to_migrate[index]['collections']):
                     if entities_to_migrate[index]['collections'][index2]['system'] == False:
-                        entities_to_migrate[index]['collections'][index2]['name'] = create_name(single_mode,src_session.tenant, entities_to_migrate[index]['collections'][index2]['name'])
+                        entities_to_migrate[index]['collections'][index2]['name'] = create_name(single_mode,src_session.tenant, entities_to_migrate[index]['collections'][index2]['name'], prefix)
             
             if TAG_DEPENDENCY == True:
                 #Translate tag name
                 for index2, col in enumerate(entities_to_migrate[index].get('tags', [])):
-                    entities_to_migrate[index]['tags'][index2]['name'] = create_name(single_mode, src_session.tenant, entities_to_migrate[index]['tags'][index2]['name'])
+                    entities_to_migrate[index]['tags'][index2]['name'] = create_name(single_mode, src_session.tenant, entities_to_migrate[index]['tags'][index2]['name'], prefix)
 
             if NETWORK_LIST_DEPENDENCY == True:
                 for index2, col in enumerate(entities_to_migrate[index].get('applicationsSpec', [])):
                     for index3, col in enumerate(entities_to_migrate[index].get('applicationsSpec', [])[index2].get('networkControls', {}).get('subnets', {}).get('allow',[])):
                         val = entities_to_migrate[index]['applicationsSpec'][index2]['networkControls']['subnets']['allow'][index3]
-                        entities_to_migrate[index].get('applicationsSpec', [])[index2]['networkControls']['subnets']['allow'][index3] = create_name(single_mode, src_session.tenant, val)
+                        entities_to_migrate[index].get('applicationsSpec', [])[index2]['networkControls']['subnets']['allow'][index3] = create_name(single_mode, src_session.tenant, val, prefix)
 
                     for index3, col in enumerate(entities_to_migrate[index].get('applicationsSpec', [])[index2].get('networkControls', {}).get('subnets', {}).get('deny',[])):
                         val = entities_to_migrate[index].get('applicationsSpec', [])[index2]['networkControls']['subnets']['deny'][index3]
-                        entities_to_migrate[index].get('applicationsSpec', [])[index2]['networkControls']['subnets']['deny'][index3] = create_name(single_mode, src_session.tenant, val)
+                        entities_to_migrate[index].get('applicationsSpec', [])[index2]['networkControls']['subnets']['deny'][index3] = create_name(single_mode, src_session.tenant, val, prefix)
 
             if custom_rules_id_translation_matrix:
                 if 'customRules' in entities_to_migrate[index]:

@@ -1,16 +1,18 @@
 from modules import generic_pull_put_migrate
 from modules import generic_pull_post_migrate
 
-def create_name(single_mode, session_name, data_name):
+def create_name(single_mode, session_name, data_name, prefix=''):
+    if prefix:
+        return prefix + ' - ' + data_name
     if single_mode:
         return data_name
     else:
-        session_name + ' - ' + data_name
+        return session_name + ' - ' + data_name
 
-def migrate(dst_session, src_session_list, options, single_mode, logger):
-    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Compliance Rules - Hosts - Host', '/api/v1/policies/compliance/host', 'name', 'rules', single_mode, logger)
+def migrate(dst_session, src_session_list, options, single_mode, logger, prefix=''):
+    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Compliance Rules - Hosts - Host', '/api/v1/policies/compliance/host', 'name', 'rules', single_mode, logger, prefix=prefix)
 
-    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Compliance Rules - Hosts - VM', '/api/v1/policies/compliance/vms', 'name', 'rules', single_mode, logger)
+    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Compliance Rules - Hosts - VM', '/api/v1/policies/compliance/vms', 'name', 'rules', single_mode, logger, prefix=prefix)
 #========================================================================================================================================================================================================
     import time
     from tqdm import tqdm
@@ -71,7 +73,7 @@ def migrate(dst_session, src_session_list, options, single_mode, logger):
             entities_to_migrate = []
             if src_entities:
                 for ent in src_entities:
-                    new_name = create_name(single_mode,src_session.tenant, ent[NAME_INDEX])
+                    new_name = create_name(single_mode,src_session.tenant, ent[NAME_INDEX], prefix)
                     if new_name not in dst_names:
                         id_maps.update({str(ent['_id']): int(high_id)})
                         ent['_id'] = high_id
@@ -89,7 +91,7 @@ def migrate(dst_session, src_session_list, options, single_mode, logger):
 
         for index, ent_payload in tqdm(enumerate(entities_to_migrate), desc='Custom Rules Migration', leave=False):
             #Create custom name for entity
-            new_name = create_name(single_mode,src_session.tenant, ent_payload[NAME_INDEX])
+            new_name = create_name(single_mode,src_session.tenant, ent_payload[NAME_INDEX], prefix)
             entities_to_migrate[index][NAME_INDEX] = new_name
 
             logger.info(f'Adding {MODULE} from \'{src_session.tenant}\'')
@@ -102,15 +104,15 @@ def migrate(dst_session, src_session_list, options, single_mode, logger):
 #========================================================================================================================================================================================================
 
 
-    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Compliance Rules - Containers and Images - Deployed', '/api/v1/policies/compliance/container', 'name', 'rules', single_mode, logger)
+    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Compliance Rules - Containers and Images - Deployed', '/api/v1/policies/compliance/container', 'name', 'rules', single_mode, logger, prefix=prefix)
 
-    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Compliance Rules - Functions - Function', '/api/v1/policies/compliance/serverless', 'name', 'rules', single_mode, logger)
+    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Compliance Rules - Functions - Function', '/api/v1/policies/compliance/serverless', 'name', 'rules', single_mode, logger, prefix=prefix)
 
-    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Compliance Rules - Functions - CI', '/api/v1/policies/compliance/ci/serverless', 'name', 'rules', single_mode, logger)
+    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Compliance Rules - Functions - CI', '/api/v1/policies/compliance/ci/serverless', 'name', 'rules', single_mode, logger, prefix=prefix)
 
-    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Compliance Rules - Trusted Images - Trust Groups', '/api/v1/trust/data', 'name', 'groups', single_mode, logger, col_dep=False)
+    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Compliance Rules - Trusted Images - Trust Groups', '/api/v1/trust/data', 'name', 'groups', single_mode, logger, col_dep=False, prefix=prefix)
 
-    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Compliance Rules - Trusted Images - Policy', '/api/v1/trust/data', 'name', 'policy', single_mode, logger, data_index2='rules') #Trust groups must come first
+    generic_pull_put_migrate.g_migrate(dst_session, src_session_list, 'Compliance Rules - Trusted Images - Policy', '/api/v1/trust/data', 'name', 'policy', single_mode, logger, data_index2='rules', prefix=prefix) #Trust groups must come first
 
     
 
