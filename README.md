@@ -2,14 +2,29 @@
 
 ## Prisma Cloud Compute Migration Tool - PCCMT
 
-# Beta 10/10/2023
+# Beta 04/22/2026
 
-## New Features 10/10/2023
+## New Features 04/22/2026
 
-During collections migration, the script can now create Compute Access Groups and Roles in the SaaS environment for each self hosted Collection that was used for RBAC.
-To use this feature, response with Y when prompted to enable Compute Access Group and Role creation for SaaS RBAC.
+### Resource List creation mode selection
 
-### Features
+When migrating collections to a SaaS environment, the script can create Compute Access Groups and Roles for each self-hosted Collection. After responding with Y when prompted, you can now choose between two modes:
+
+1. **All collections** — Creates a Resource List for every migrated collection, regardless of how it was used in the source environment.
+2. **RBAC-only collections** — Creates a Resource List only for collections that had user assignments (the original behavior). This uses the collection usage lookup API to determine eligibility.
+
+```
+For each collection, create a Resource List? (Recommended for RBAC) Y/N
+y
+Create Resource Lists for:
+  1. All collections
+  2. Only collections used for RBAC (user assignments)
+Enter 1 or 2:
+```
+
+### Name Prefix
+
+When prompted, you can optionally add a custom prefix to all migrated rule, collection, and tag names. This is useful for 1-to-1 migrations where you want to easily identify migrated entities in the destination console. Names will be formatted as `<prefix> - <original name>`.
 
 Migration of multiple CWPP Consoles into a Single Console. EX: Migrating multiple projects into a single SaaS console.
 
