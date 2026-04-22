@@ -37,6 +37,35 @@ def collection_for_user(session, collection_name):
     return False
 
 
+REQUIRED_MEMBER_FIELDS = [
+    "appIDs", "clusters", "codeRepos", "containers",
+    "functions", "hosts", "images", "labels", "namespaces"
+]
+
+def validate_rl_payload(payload):
+    errors = []
+
+    if not isinstance(payload.get("name"), str) or not payload["name"].strip():
+        errors.append("'name' must be a non-empty string")
+
+    if "resourceListType" not in payload:
+        errors.append("'resourceListType' is missing")
+
+    members = payload.get("members")
+    if not isinstance(members, list) or len(members) == 0:
+        errors.append("'members' must be a non-empty list")
+    else:
+        member = members[0]
+        for field in REQUIRED_MEMBER_FIELDS:
+            val = member.get(field)
+            if not isinstance(val, list):
+                errors.append(f"members[0]['{field}'] must be a list, got {type(val).__name__}")
+            elif len(val) == 0:
+                errors.append(f"members[0]['{field}'] must not be empty")
+
+    return errors
+
+
 def create_rl(src_session, session, collection_data):
     name = collection_data['name']
 
@@ -46,24 +75,34 @@ def create_rl(src_session, session, collection_data):
             json.dump(collection_data, outfile)
 
 
+        def as_list(val):
+            if isinstance(val, list):
+                return val
+            return [val]
+
         payload = {
-            "description": "Automatically Created",
+            "description": "",
             "members": [
                 {
-                    "appIDs":collection_data.get('appIDs', "*"),
-                    "clusters":collection_data.get('clusters', "*"),
-                    "codeRepos": collection_data.get('codeRepos', "*"),
-                    "containers": collection_data.get('containers', "*"),
-                    "functions": collection_data.get('functions', "*"),
-                    "hosts": collection_data.get('hosts', "*"),
-                    "images": collection_data.get('images', "*"),
-                    "labels": collection_data.get('labels', "*"),
-                    "namespaces": collection_data.get('namespaces', "*")
+                    "appIDs": as_list(collection_data.get('appIDs', "*")),
+                    "clusters": as_list(collection_data.get('clusters', "*")),
+                    "codeRepos": as_list(collection_data.get('codeRepos', "*")),
+                    "containers": as_list(collection_data.get('containers', "*")),
+                    "functions": as_list(collection_data.get('functions', "*")),
+                    "hosts": as_list(collection_data.get('hosts', "*")),
+                    "images": as_list(collection_data.get('images', "*")),
+                    "labels": as_list(collection_data.get('labels', "*")),
+                    "namespaces": as_list(collection_data.get('namespaces', "*"))
                 }
             ],
             "name": name,
             "resourceListType": "COMPUTE_ACCESS_GROUP"
         }
+
+        validation_errors = validate_rl_payload(payload)
+        if validation_errors:
+            session.logger.error(f'Invalid Resource List payload for "{name}": {validation_errors}')
+            return
 
         res = session.request('POST', '/v1/resource_list', json=payload)
 
